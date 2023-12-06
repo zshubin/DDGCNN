@@ -3,7 +3,7 @@ from DDGCNN.config import OptInit
 from DDGCNN.model import DenseDDGCNN
 from utils.ckpt_util import save_checkpoint
 import logging
-from data_loader_private.data_loaders import *
+from data_loader.data_loaders import *
 import math
 
 def cosine_scheduler(base_value, final_value, epochs, niter_per_ep, warmup_epochs=0,
@@ -63,7 +63,7 @@ def main(logger, sub):
     return opt.best_acc
 
 
-def train(model, train_loader, valid_data_loader, optimizer, scheduler, lr_schedule_values, criterion, opt, logger):
+def train(model, train_loader, valid_data_loader, optimizer, scheduler, criterion, opt, logger):
     model.train()
     total_loss = 0.
     total_acc  = 0.
@@ -71,7 +71,6 @@ def train(model, train_loader, valid_data_loader, optimizer, scheduler, lr_sched
     opt.iter   = 0.
     for i, (data, target) in enumerate(train_loader):
         opt.iter += 1
-        optimizer.param_groups[0]['lr'] = lr_schedule_values[opt.start_steps]
         opt.start_steps += 1
         data, target = data.to(opt.device), target.to(opt.device)
         optimizer.zero_grad()
@@ -136,18 +135,33 @@ def make_logger():
     return logger
 
 if __name__ == '__main__':
-    data_path = './processed_ssvep_data/'
-    # sess_list = os.listdir(data_path)
-    logger = make_logger()
-    sub='sub0'
-    acc = main(logger, sub)
-    print(acc)
-    # for sess_index, sess in enumerate(sess_list):
-    #     print(sess)
-    #     acc_list = []
+    # data_path = './processed_ssvep_data/'
+    # sub_list = os.listdir(data_path)
+    # logger = make_logger()
+    # acc_list = []
+    # for sess_index, sess in enumerate(sub_list):
     #     sub_list = os.listdir(os.path.join(data_path, sess))
     #     for sub_index, sub in enumerate(sub_list):
     #         print(sub)
-    #         acc = main(logger, sub)
+    #         acc = main(logger, sub, sess)
     #         acc_list.append(acc)
+    #         record_file.write(sub+' ' + str(acc) + '\n')
     #         print(acc_list)
+
+    data_path = './40targetdata/'
+    logger = make_logger()
+    record_file = open('./record_DDGCNN_0.2_40target_3_3_128_0.5.txt', 'w')
+    sub_list = os.listdir(data_path)
+    # sub_list = sub_list[0:1]+sub_list[2:3]+sub_list[4:5]+sub_list[6:7]+sub_list[8:9]+sub_list[12:13]+sub_list[16:17]+sub_list[26:27] #3 2 64
+    # sub_list = sub_list[10:11]+sub_list[15:17]+sub_list[20:22]+sub_list[23:24]+sub_list[26:27]+sub_list[12:13]+sub_list[32:34] #3 2 32
+    # sub_list = sub_list[1:2]+sub_list[7:8] #3 3 64
+    # sub_list = sub_list[11:12] #3 3 32
+    # sub_list = sub_list[27:28]+sub_list[31:32]+sub_list[34:35] #3 2 16
+    # sub_list = sub_list[9:10] #2 2 32 bottle drop0.5
+    sub_list = sub_list[13:14] #3 3 128 bottle drop0.5.
+    print(sub_list)
+    for sub_index, sub in enumerate(sub_list):
+        print(sub)
+        acc = main(logger, sub)
+        record_file.write(sub + ' ' + str(acc) + '\n')
+
