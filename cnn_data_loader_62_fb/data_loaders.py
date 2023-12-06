@@ -59,19 +59,29 @@ class DatasetProcessing(Dataset):
             x_hat = (x - x_mean) / torch.sqrt(x_var + eps)
             return x_hat
         label_name = self.class_dict[self.label[index]]
-        time_start = random.randint(160, int(self.sample_freq*5 + 35 - self.win_train))
+        time_start = random.randint(35, int(self.sample_freq*4 + 35 - self.win_train))  #160 35
         x1 = time_start
         x2 = time_start + self.win_train
         c = [24, 28, 29, 30, 41, 42, 43, 60, 61]
-        bci_data = np.load(os.path.join(self.bci_data_path, label_name, self.bci_file_name[index]))[:, x1:x2]
-        bci_data = torch.from_numpy(iir_bandpass_filter(bci_data, 7, 70, self.sample_freq, 4).astype(np.float32)).to(self.device)
+        bci_data = np.load(os.path.join(self.bci_data_path, label_name, self.bci_file_name[index]))[:,::self.down_sample][:, x1:x2]
+        # bci_data = torch.from_numpy(iir_bandpass_filter(bci_data, 3, 50, self.sample_freq, 4).astype(np.float32)).to(self.device)
+        bci_data1 = torch.from_numpy(iir_bandpass_filter(bci_data, 3, 14, self.sample_freq, 4).astype(np.float32)).to(self.device) #7-16  #3-14
+        bci_data2 = torch.from_numpy(iir_bandpass_filter(bci_data, 9, 26, self.sample_freq, 4).astype(np.float32)).to(self.device)#16-30 #9-26
+        bci_data3 = torch.from_numpy(iir_bandpass_filter(bci_data, 14, 38, self.sample_freq, 4).astype(np.float32)).to(self.device)#24-45 #14-38
+        bci_data4 = torch.from_numpy(iir_bandpass_filter(bci_data, 19, 50, self.sample_freq, 4).astype(np.float32)).to(self.device)#32-70 #19-50
 
         if self.transform is None:
-            bci_data = simple_batch_norm_1d(bci_data,dim=0)
-        bci_data = torch.unsqueeze(bci_data, 0)
+            bci_data1 = simple_batch_norm_1d(bci_data1,dim=0)
+            bci_data2 = simple_batch_norm_1d(bci_data2,dim=0)
+            bci_data3 = simple_batch_norm_1d(bci_data3,dim=0)
+            bci_data4 = simple_batch_norm_1d(bci_data4,dim=0)
+        bci_data1 = torch.unsqueeze(bci_data1, 0)
+        bci_data2 = torch.unsqueeze(bci_data2, 0)
+        bci_data3 = torch.unsqueeze(bci_data3, 0)
+        bci_data4 = torch.unsqueeze(bci_data4, 0)
 
         label = torch.from_numpy(np.array(self.label[index])).to(self.device)
-        return bci_data, label
+        return bci_data1, bci_data2, bci_data3, bci_data4, label
 
     def __len__(self):
         return len(self.bci_file_name)

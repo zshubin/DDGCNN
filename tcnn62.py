@@ -10,7 +10,7 @@ class tCNN(nn.Module):
         super(tCNN, self).__init__()
 
         # 第一个卷积，卷积后的数据格式：16@1Xwin_train
-        self.conv1 = nn.Conv2d(1, 16, (62, 1))
+        self.conv1 = nn.Conv2d(1, 16, (64, 1))
         self.bn1 = nn.BatchNorm2d(16, momentum=0.99, eps=0.001)
         # self.bn1 = nn.BatchNorm2d(16, momentum=0.99)
         self.elu1 = nn.ELU(alpha=1)
@@ -41,7 +41,7 @@ class tCNN(nn.Module):
         self.dropout5 = nn.Dropout(0.4)
 
         # 全连接
-        self.linear = nn.Linear(32, 4)
+        self.linear = nn.Linear(32, 40)
 
     def forward(self, x):
         # 第一个卷积, 卷积后的数据格式：16@1X50

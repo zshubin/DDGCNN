@@ -59,12 +59,12 @@ class DatasetProcessing(Dataset):
             x_hat = (x - x_mean) / torch.sqrt(x_var + eps)
             return x_hat
         label_name = self.class_dict[self.label[index]]
-        time_start = random.randint(160, int(self.sample_freq*5 + 35 - self.win_train))
+        time_start = random.randint(35, int(self.sample_freq*5 + 35 - self.win_train))
         x1 = time_start
         x2 = time_start + self.win_train
         c = [24, 28, 29, 30, 41, 42, 43, 60, 61]
         bci_data = np.load(os.path.join(self.bci_data_path, label_name, self.bci_file_name[index]))[:, x1:x2]
-        bci_data = torch.from_numpy(iir_bandpass_filter(bci_data, 7, 70, self.sample_freq, 4).astype(np.float32)).to(self.device)
+        bci_data = torch.from_numpy(iir_bandpass_filter(bci_data, 7, 70, self.sample_freq, 4).astype(np.float32)).to(self.device)  #3 50/7 70
 
         if self.transform is None:
             bci_data = simple_batch_norm_1d(bci_data,dim=0)

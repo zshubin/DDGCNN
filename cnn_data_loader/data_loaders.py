@@ -79,7 +79,7 @@ class DatasetProcessing(Dataset):
 
 def data_generator_np(data_path, batch_size, win_train=1, down_sample=1, sample_freq=1000, device='cuda'):
     train_dataset = DatasetProcessing(data_path, 'train',win_train=win_train, down_sample=down_sample, sample_freq=sample_freq, device=device)
-    test_dataset = DatasetProcessing(data_path, 'valid',win_train=win_train, down_sample=down_sample, sample_freq=sample_freq, device=device)
+    test_dataset = DatasetProcessing(data_path, 'test',win_train=win_train, down_sample=down_sample, sample_freq=sample_freq, device=device)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=batch_size,
